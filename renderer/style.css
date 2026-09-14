@@ -1,0 +1,1228 @@
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  -webkit-app-region: no-drag;
+}
+
+#stage {
+  position: relative;
+  width: 220px;
+  height: 260px;
+}
+
+/* ---------- Clawd ---------- */
+
+#clawd-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 170px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#clawd {
+  position: relative;
+  width: 152px;
+  height: 160px;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+
+/* All pose SVGs are stacked; only the active one shows */
+.pose {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: none;
+  image-rendering: pixelated;
+  overflow: visible;
+}
+
+/* ---------- BREATHING ---------- */
+
+.breathe-anim {
+  animation: breathe 3.2s infinite ease-in-out;
+  transform-origin: 7.5px 13px;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1, 1) translate(0, 0); }
+  50% { transform: scale(1.02, 0.98) translate(0, 0.5px); }
+}
+
+/* ---------- EYE TRACKING (awake only) ---------- */
+
+#eyes {
+  transition: transform 0.08s linear;
+}
+
+/* ---------- STATE: AWAKE ---------- */
+
+.state-awake .pose-awake { display: block; }
+
+/* ---------- LATE NIGHT (tired mode) ---------- */
+
+.late-night #eyes { opacity: 0; }
+.late-night #tired-eyes { opacity: 1; }
+.late-night #master-group {
+  animation: tired-breathe 4s infinite ease-in-out !important;
+  transform-origin: 7.5px 13px;
+}
+
+@keyframes tired-breathe {
+  0%, 100% { transform: scale(1, 1) translate(0, 0); }
+  50% { transform: scale(1.01, 0.99) translate(0, 0.5px); }
+}
+
+/* Yawn (plays during scratch idle phase at night) */
+.late-night.idle-scratch #master-group {
+  animation: yawn-bob 1.8s ease-in-out forwards !important;
+}
+
+@keyframes yawn-bob {
+  0%, 100% { transform: translate(0, 0); }
+  30%, 70% { transform: translate(0, 1px) scale(1.02, 0.96); }
+}
+
+/* ---------- LOW BATTERY ---------- */
+
+.low-battery #low-battery {
+  opacity: 1;
+  animation: battery-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes battery-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* ---------- THUG LIFE (idle sub-state) ---------- */
+
+/* Phase 1: right hand swings shades on from right */
+.idle-thug-on #eyes { opacity: 0; }
+.idle-thug-on #thug-shades {
+  opacity: 1;
+  animation: shades-on 0.4s ease-out forwards;
+  transform-origin: 14px 8px;
+}
+.idle-thug-on .arm-r {
+  animation: arm-put-on 0.4s ease-out forwards !important;
+  transform-origin: 14px 10px;
+}
+
+@keyframes shades-on {
+  0% { transform: translateX(4px) rotate(30deg); opacity: 0; }
+  100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+}
+@keyframes arm-put-on {
+  0% { transform: rotate(-30deg) translateX(-2px); }
+  60% { transform: rotate(-15deg) translateX(-1px); }
+  100% { transform: rotate(0deg) translateX(0); }
+}
+
+/* Phase 4: wearing shades — deal with it */
+.idle-thug-pose #eyes { opacity: 0; }
+.idle-thug-pose #thug-shades { opacity: 1; }
+
+/* Phase 5: left hand pulls shades off to left */
+.idle-thug-off #thug-shades {
+  opacity: 1;
+  animation: shades-off 0.4s ease-in forwards;
+  transform-origin: 1px 8px;
+}
+.idle-thug-off .arm-l {
+  animation: arm-take-off 0.4s ease-in forwards !important;
+  transform-origin: 1px 10px;
+}
+
+@keyframes shades-off {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateX(-4px) rotate(-30deg); opacity: 0; }
+}
+@keyframes arm-take-off {
+  0% { transform: rotate(0deg) translateX(0); }
+  40% { transform: rotate(15deg) translateX(1px); }
+  100% { transform: rotate(30deg) translateX(2px); }
+}
+
+/* ---------- IDLE PHASES (awake sub-states) ---------- */
+
+.state-awake.idle-look-right #master-group {
+  animation: idle-look-right 2s ease-in-out forwards;
+}
+.state-awake.idle-look-right #eyes {
+  transform: translate(1px, 0) !important;
+  transition: transform 0.3s ease;
+}
+
+.state-awake.idle-look-left #master-group {
+  animation: idle-look-left 2s ease-in-out forwards;
+}
+.state-awake.idle-look-left #eyes {
+  transform: translate(-1px, 0) !important;
+  transition: transform 0.3s ease;
+}
+
+.state-awake.idle-scratch #arm-left {
+  animation: scratch-arm 0.2s ease-in-out 6;
+  transform-origin: 1px 10px;
+}
+.state-awake.idle-scratch #master-group {
+  animation: scratch-lean 1.8s ease-in-out forwards;
+}
+
+@keyframes idle-look-right {
+  0%, 100% { transform: scale(1,1) translate(0, 0); }
+  20%, 80% { transform: scale(1,1) translate(1px, 0); }
+}
+
+@keyframes idle-look-left {
+  0%, 100% { transform: scale(1,1) translate(0, 0); }
+  20%, 80% { transform: scale(1,1) translate(-1px, 0); }
+}
+
+@keyframes scratch-arm {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(1.5px, -4px) rotate(35deg); }
+}
+
+@keyframes scratch-lean {
+  0%, 100% { transform: translate(0, 0); }
+  15%, 85% { transform: translate(0.5px, 0); }
+}
+
+/* ---------- VIBING (Spotify playing while idle) ---------- */
+
+.state-awake.vibing .pose-awake { display: block; }
+.state-awake.vibing #headphones { opacity: 1; transition: opacity 0.4s ease; }
+.state-awake.vibing #eyes { opacity: 0; }
+.state-awake.vibing #vibe-eyes { opacity: 1; }
+.state-awake.vibing #music-notes { opacity: 1; }
+
+.state-awake.vibing #master-group {
+  animation: vibe-bob 0.6s infinite ease-in-out !important;
+  transform-origin: 7.5px 13px;
+}
+
+.state-awake.vibing .arm-l {
+  animation: vibe-arm-l 0.6s infinite ease-in-out;
+  transform-origin: 1px 10px;
+}
+.state-awake.vibing .arm-r {
+  animation: vibe-arm-r 0.6s infinite ease-in-out;
+  transform-origin: 14px 10px;
+}
+
+@keyframes vibe-bob {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-1.5px) scaleY(0.97); }
+}
+
+@keyframes vibe-arm-l {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+@keyframes vibe-arm-r {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(15deg); }
+}
+
+/* Music notes floating up */
+.note-l1 { animation: note-float-l 2.4s infinite ease-out; }
+.note-l2 { animation: note-float-l 2.4s infinite ease-out 1.2s; }
+.note-r1 { animation: note-float-r 2.4s infinite ease-out 0.6s; }
+.note-r2 { animation: note-float-r 2.4s infinite ease-out 1.8s; }
+
+@keyframes note-float-l {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  15%  { opacity: 0.9; }
+  50%  { transform: translate(-2px, -6px) scale(0.8); opacity: 0.7; }
+  100% { transform: translate(-3px, -12px) scale(1); opacity: 0; }
+}
+@keyframes note-float-r {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  15%  { opacity: 0.9; }
+  50%  { transform: translate(2px, -6px) scale(0.8); opacity: 0.7; }
+  100% { transform: translate(3px, -12px) scale(1); opacity: 0; }
+}
+
+/* ---------- STATE: WALKING ---------- */
+
+.state-walk .pose-walk { display: block; }
+
+.walk-bounce {
+  animation: walk-bob 0.4s infinite ease-in-out;
+  transform-origin: 8px 15px;
+}
+
+@keyframes walk-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.8px); }
+}
+
+/* Legs pivot from the hip (top of leg) */
+.walk-leg-front {
+  animation: stride-front 0.4s infinite ease-in-out;
+  transform-origin: 7.5px 12px;
+}
+.walk-leg-back {
+  animation: stride-back 0.4s infinite ease-in-out;
+  transform-origin: 9.5px 12px;
+}
+
+@keyframes stride-front {
+  0% { transform: rotate(25deg); }
+  50% { transform: rotate(-25deg); }
+  100% { transform: rotate(25deg); }
+}
+@keyframes stride-back {
+  0% { transform: rotate(-25deg); }
+  50% { transform: rotate(25deg); }
+  100% { transform: rotate(-25deg); }
+}
+
+/* Arms swing opposite to legs */
+.walk-arm-front {
+  animation: arm-front 0.4s infinite ease-in-out;
+  transform-origin: 5.5px 8px;
+}
+.walk-arm-back {
+  animation: arm-back 0.4s infinite ease-in-out;
+  transform-origin: 10.5px 8px;
+}
+
+@keyframes arm-front {
+  0% { transform: rotate(-20deg); }
+  50% { transform: rotate(20deg); }
+  100% { transform: rotate(-20deg); }
+}
+@keyframes arm-back {
+  0% { transform: rotate(20deg); }
+  50% { transform: rotate(-20deg); }
+  100% { transform: rotate(20deg); }
+}
+
+/* Walking left (flipped) */
+.walk-left .pose-walk {
+  transform: scaleX(-1);
+}
+
+/* ---------- IGNORED (remote + parachute banner) ---------- */
+
+#ignored-banner {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+#parachute {
+  font-size: 24px;
+  line-height: 1;
+}
+
+#banner-sign {
+  background: #FFF;
+  border: 2px solid #333;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  color: #111;
+  white-space: nowrap;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Remote click: arm raises holding remote */
+.idle-ignored-click .arm-r {
+  animation: remote-raise 0.3s ease-out forwards !important;
+  transform-origin: 14px 10px;
+}
+.idle-ignored-click #remote-prop { opacity: 1; }
+
+@keyframes remote-raise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-25deg); }
+}
+
+/* Button press: arm nudges */
+.idle-ignored-press .arm-r {
+  transform: rotate(-25deg);
+  transform-origin: 14px 10px;
+  animation: remote-press 0.15s ease-in-out !important;
+}
+.idle-ignored-press #remote-prop { opacity: 1; }
+
+@keyframes remote-press {
+  0% { transform: rotate(-25deg); }
+  50% { transform: rotate(-20deg); }
+  100% { transform: rotate(-25deg); }
+}
+
+/* Banner drops */
+.idle-ignored-drop #ignored-banner {
+  opacity: 1;
+  animation: banner-drop 1.2s ease-out forwards;
+}
+.idle-ignored-drop .arm-r {
+  transform: rotate(-25deg);
+  transform-origin: 14px 10px;
+}
+.idle-ignored-drop #remote-prop { opacity: 1; }
+
+@keyframes banner-drop {
+  0% { top: -60px; opacity: 0; }
+  20% { opacity: 1; }
+  100% { top: 10px; opacity: 1; }
+}
+
+/* Banner holding (sway) */
+.idle-ignored-hold #ignored-banner {
+  opacity: 1;
+  top: 10px;
+  animation: banner-sway 2s ease-in-out infinite;
+}
+.idle-ignored-hold .arm-r {
+  transform: rotate(-25deg);
+  transform-origin: 14px 10px;
+}
+.idle-ignored-hold #remote-prop { opacity: 1; }
+
+@keyframes banner-sway {
+  0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+  50% { transform: translateX(-50%) rotate(2deg); }
+}
+
+/* Banner away */
+.idle-ignored-away #ignored-banner {
+  opacity: 1;
+  animation: banner-away 0.8s ease-in forwards;
+}
+
+@keyframes banner-away {
+  0% { top: 10px; opacity: 1; }
+  100% { top: -60px; opacity: 0; }
+}
+
+/* ---------- COPY/PASTE DETECTION (awake — front-facing only) ---------- */
+
+/* --- Copy: right arm raises with paper --- */
+
+.state-awake.copy-grab .arm-r {
+  animation: copy-raise 0.3s ease-out forwards !important;
+  transform-origin: 14px 10px;
+}
+.state-awake.copy-grab #copy-prop {
+  opacity: 1;
+  animation: copy-paper-in 0.3s ease-out forwards;
+}
+
+@keyframes copy-raise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-35deg); }
+}
+@keyframes copy-paper-in {
+  0% { transform: translate(2px, 3px); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+
+.state-awake.copy-hold .arm-r {
+  transform: rotate(-35deg) !important;
+  transform-origin: 14px 10px;
+  animation: none !important;
+}
+.state-awake.copy-hold #copy-prop { opacity: 1; }
+.state-awake.copy-hold #eyes {
+  transform: translate(1px, 0) !important;
+  transition: transform 0.15s ease;
+}
+
+.state-awake.copy-done .arm-r {
+  animation: copy-lower 0.3s ease-in forwards !important;
+  transform-origin: 14px 10px;
+}
+.state-awake.copy-done #copy-prop {
+  animation: copy-paper-out 0.3s ease-in forwards;
+}
+
+@keyframes copy-lower {
+  0% { transform: rotate(-35deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes copy-paper-out {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(2px, 3px); opacity: 0; }
+}
+
+/* --- Paste: left arm raises with pencil --- */
+
+.state-awake.paste-grab .arm-l {
+  animation: paste-raise 0.3s ease-out forwards !important;
+  transform-origin: 1px 10px;
+}
+.state-awake.paste-grab #paste-prop {
+  opacity: 1;
+  animation: paste-pencil-in 0.3s ease-out forwards;
+}
+
+@keyframes paste-raise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(35deg); }
+}
+@keyframes paste-pencil-in {
+  0% { transform: translate(-2px, 3px); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+
+.state-awake.paste-hold .arm-l {
+  transform: rotate(35deg) !important;
+  transform-origin: 1px 10px;
+  animation: none !important;
+}
+.state-awake.paste-hold #paste-prop { opacity: 1; }
+
+.state-awake.paste-done .arm-l {
+  animation: paste-lower 0.3s ease-in forwards !important;
+  transform-origin: 1px 10px;
+}
+.state-awake.paste-done #paste-prop {
+  animation: paste-pencil-out 0.3s ease-in forwards;
+}
+
+@keyframes paste-lower {
+  0% { transform: rotate(35deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes paste-pencil-out {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(-2px, 3px); opacity: 0; }
+}
+
+/* ---------- SCREENSHOT / CHEESE ---------- */
+
+.state-cheese .pose-cheese { display: block; }
+
+.cheese-pop {
+  animation: cheese-bounce 0.5s ease-out;
+  transform-origin: 7.5px 15px;
+}
+
+@keyframes cheese-bounce {
+  0% { transform: scale(1, 0.9); }
+  30% { transform: scale(0.95, 1.05) translateY(-2px); }
+  60% { transform: scale(1, 1); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Arms in V pose, slight wiggle */
+.cheese-arm-l {
+  transform: rotate(40deg);
+  transform-origin: 1px 7px;
+  animation: cheese-wave-l 0.3s ease-in-out 3 alternate;
+}
+.cheese-arm-r {
+  transform: rotate(-40deg);
+  transform-origin: 14px 7px;
+  animation: cheese-wave-r 0.3s ease-in-out 3 alternate;
+}
+
+@keyframes cheese-wave-l {
+  0% { transform: rotate(35deg); }
+  100% { transform: rotate(50deg); }
+}
+@keyframes cheese-wave-r {
+  0% { transform: rotate(-35deg); }
+  100% { transform: rotate(-50deg); }
+}
+
+/* Camera flash */
+.camera-flash {
+  animation: flash-burst 0.6s ease-out forwards;
+}
+
+@keyframes flash-burst {
+  0% { opacity: 0; }
+  8% { opacity: 0.9; }
+  30% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+/* ---------- CHARGING CELEBRATION ---------- */
+
+.state-charging .pose-charging { display: block; }
+
+.charge-bounce {
+  transform-origin: 7.5px 15px;
+  animation: charge-jump 0.6s ease-in-out 4;
+}
+
+@keyframes charge-jump {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  15% { transform: translateY(0) scaleY(0.88); }
+  35% { transform: translateY(-8px) scaleY(1.04); }
+  50% { transform: translateY(-10px) scaleY(1); }
+  65% { transform: translateY(-8px) scaleY(1.04); }
+  85% { transform: translateY(0) scaleY(0.88); }
+}
+
+.charge-shadow {
+  animation: charge-shadow-kf 0.6s ease-in-out 4;
+  transform-origin: 7.5px 15.5px;
+}
+@keyframes charge-shadow-kf {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  15% { transform: scale(1.1); opacity: 0.45; }
+  50% { transform: scale(0.6); opacity: 0.15; }
+  85% { transform: scale(1.1); opacity: 0.45; }
+}
+
+.charge-arm-l {
+  transform-origin: 1px 7px;
+  animation: charge-pump-l 0.6s ease-in-out 4;
+}
+.charge-arm-r {
+  transform-origin: 14px 7px;
+  animation: charge-pump-r 0.6s ease-in-out 4;
+}
+
+@keyframes charge-pump-l {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  35%, 65% { transform: rotate(25deg) translateY(-3px); }
+}
+@keyframes charge-pump-r {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  35%, 65% { transform: rotate(-25deg) translateY(-3px); }
+}
+
+.charge-bolt {
+  animation: bolt-flash 0.4s ease-in-out 6;
+  transform-origin: 7.5px 3px;
+}
+
+@keyframes bolt-flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.15); }
+}
+
+.charge-spark {
+  opacity: 0;
+  animation: spark-pop 0.5s ease-out 5;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes spark-pop {
+  0% { opacity: 0; transform: scale(0); }
+  30% { opacity: 1; transform: scale(1.3); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+/* ---------- EDGE PEEK ---------- */
+
+.state-edge-peek .pose-awake { display: block; }
+.state-edge-peek .arm-r {
+  animation: edge-wave 0.4s infinite alternate ease-in-out !important;
+  transform-origin: 14px 10px;
+}
+
+@keyframes edge-wave {
+  0% { transform: rotate(-30deg); }
+  100% { transform: rotate(-60deg); }
+}
+
+/* ---------- DRAGGING ---------- */
+
+.dragging { cursor: grabbing !important; }
+.dragging .breathe-anim { animation: none !important; }
+.dragging #master-group {
+  animation: drag-squish 0.3s ease forwards !important;
+}
+
+@keyframes drag-squish {
+  0% { transform: scale(1, 1); }
+  100% { transform: scale(1.1, 0.9) translate(0, 1px); }
+}
+
+/* ---------- STATE: DROWSY (fighting sleep) ---------- */
+
+.state-drowsy .pose-awake { display: block; }
+
+.state-drowsy #master-group {
+  animation: head-bob 2.5s infinite ease-in-out !important;
+  transform-origin: 7.5px 13px;
+}
+
+@keyframes head-bob {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20%  { transform: rotate(3deg) translateY(1px); }
+  35%  { transform: rotate(-1deg) translateY(0); }
+  55%  { transform: rotate(5deg) translateY(2px); }
+  70%  { transform: rotate(-2deg) translateY(0); }
+  85%  { transform: rotate(4deg) translateY(1.5px); }
+}
+
+.state-drowsy #eyes {
+  animation: drowsy-eyes 2.5s infinite ease-in-out !important;
+  transform-origin: 7.5px 9px;
+}
+
+@keyframes drowsy-eyes {
+  0%, 30%, 60%, 100% { transform: scaleY(1); }
+  15%, 45% { transform: scaleY(0.3); }
+  75%, 90% { transform: scaleY(0.15); }
+}
+
+/* ---------- STATE: ASLEEP ---------- */
+
+.state-asleep .pose-sleep { display: block; }
+
+.sleep-breathe {
+  transform-origin: 7.5px 15px;
+  animation: sleep-breathe-squash 4.5s infinite ease-in-out;
+}
+
+@keyframes sleep-breathe-squash {
+  0%, 80%, 100% { transform: scale(1, 1); }
+  30%, 40% { transform: scale(1.02, 1.25); }
+}
+
+.shadow-breathe {
+  transform-origin: 7.5px 15.5px;
+  animation: shadow-pulse 4.5s infinite ease-in-out;
+}
+
+@keyframes shadow-pulse {
+  0%, 80%, 100% { transform: scaleX(1); opacity: 0.35; }
+  30%, 40% { transform: scaleX(1.05); opacity: 0.45; }
+}
+
+.z-particle { opacity: 0; }
+.z1 { animation: float-z1 6s infinite ease-in-out; }
+.z2 { animation: float-z2 6s infinite ease-in-out 2s; }
+.z3 { animation: float-z3 6s infinite ease-in-out 4s; }
+
+@keyframes float-z1 {
+  0%   { transform: translate(5px, 8px) scale(0.4); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translate(4px, 0px) scale(0.8); }
+  100% { transform: translate(6px, -8px) scale(1.1); opacity: 0; }
+}
+@keyframes float-z2 {
+  0%   { transform: translate(8px, 9px) scale(0.3); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translate(9px, 1px) scale(0.7); }
+  100% { transform: translate(8px, -7px) scale(1.0); opacity: 0; }
+}
+@keyframes float-z3 {
+  0%   { transform: translate(6px, 7px) scale(0.5); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translate(4px, -1px) scale(0.9); }
+  100% { transform: translate(5px, -9px) scale(1.2); opacity: 0; }
+}
+
+/* ---------- STATE: ACTION (typing) ---------- */
+
+.state-action .pose-typing { display: block; }
+
+#typing-lean {
+  transform: none;
+  transform-origin: 7.5px 10px;
+  transition: transform 0.5s ease;
+}
+
+#typing-body {
+  transition: transform 0.4s ease;
+  transform-origin: 10px 10px;
+}
+
+#typing-laptop {
+  transition: opacity 0.3s ease;
+}
+
+.type-arm-l {
+  animation: type-l var(--type-speed, 0.15s) infinite ease-in-out;
+}
+.type-arm-r {
+  animation: type-r var(--type-speed, 0.15s) infinite ease-in-out;
+}
+
+@keyframes type-l {
+  0%   { transform: translateY(0); }
+  25%  { transform: translateY(-1px); }
+  50%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+@keyframes type-r {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(0); }
+  75%  { transform: translateY(-1px); }
+  100% { transform: translateY(0); }
+}
+
+.eyes-read {
+  animation: read-scan var(--read-speed, 1.2s) infinite;
+}
+
+@keyframes read-scan {
+  0%, 14%   { transform: translate(-1px, 0); }
+  30%, 44%  { transform: translate(0, 0); }
+  60%, 84%  { transform: translate(0.5px, 0); }
+  85%, 100% { transform: translate(-1px, 0); }
+}
+
+.logo-glow {
+  animation: logo-pulse 1.5s infinite alternate ease-in-out;
+}
+@keyframes logo-pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Headphones on while typing + Spotify */
+.state-action.vibing #typing-headphones { opacity: 1; transition: opacity 0.4s ease; }
+
+/* --- Coffee grab: body flips 180 to face coffee machine --- */
+
+.coffee-grab #typing-body {
+  transform: scaleX(-1);
+}
+.coffee-grab #typing-laptop { opacity: 0.3; }
+.coffee-grab .type-arm-l,
+.coffee-grab .type-arm-r { animation: none !important; }
+.coffee-grab .type-arm-l { opacity: 0; }
+.coffee-grab #type-arm-right {
+  transform: translate(5px, -4px);
+  opacity: 1;
+}
+
+/* --- Drink: still turned, paw brings mug in --- */
+
+.coffee-drink #typing-body {
+  transform: scaleX(-1);
+}
+.coffee-drink #typing-laptop { opacity: 0.3; }
+.coffee-drink .type-arm-l,
+.coffee-drink .type-arm-r { animation: none !important; }
+.coffee-drink .type-arm-l { opacity: 0; }
+.coffee-drink #type-arm-right {
+  transform: translate(3px, -6px);
+}
+
+/* --- Sip: turned, ^_^ single eye squint --- */
+
+.coffee-sip #typing-body {
+  transform: scaleX(-1);
+}
+.coffee-sip #typing-laptop { opacity: 0.3; }
+.coffee-sip .type-arm-l,
+.coffee-sip .type-arm-r { animation: none !important; }
+.coffee-sip .type-arm-l { opacity: 0; }
+.coffee-sip #type-arm-right {
+  transform: translate(3px, -6px);
+}
+.coffee-sip .eyes-read { opacity: 0; transition: opacity 0.15s ease; }
+.coffee-sip #typing-happy-eyes { opacity: 1 !important; transition: opacity 0.15s ease; }
+
+/* --- Return: turn back to laptop, resume typing --- */
+
+.coffee-return #typing-body {
+  transform: none;
+}
+.coffee-return #typing-laptop { opacity: 1; }
+.coffee-return .type-arm-l { opacity: 1; transition: opacity 0.2s ease; }
+.coffee-return #typing-happy-eyes { opacity: 0 !important; transition: opacity 0.2s ease; }
+
+/* ---------- STATE: HAPPY ---------- */
+
+.state-happy .pose-happy { display: block; }
+
+.bounce-anim {
+  transform-origin: 7.5px 15px;
+  animation: bounce 0.7s 3 ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes bounce {
+  0%, 15%, 100% { transform: translateY(0) scaleY(1); }
+  20% { transform: translateY(0) scaleY(0.85); }
+  40% { transform: translateY(-10px) scaleY(1.05); }
+  50% { transform: translateY(-12px) scaleY(1); }
+  60% { transform: translateY(-10px) scaleY(1.05); }
+  80% { transform: translateY(0) scaleY(0.85); }
+  85% { transform: translateY(0) scaleY(1); }
+}
+
+.shadow-bounce {
+  transform-origin: 7.5px 15.5px;
+  animation: shadow-bounce-kf 0.7s 3 ease-in-out;
+  animation-fill-mode: forwards;
+}
+@keyframes shadow-bounce-kf {
+  0%, 15%, 100% { transform: scale(1); opacity: 0.4; }
+  20% { transform: scale(1.1); opacity: 0.5; }
+  50% { transform: scale(0.5); opacity: 0.15; }
+  80% { transform: scale(1.1); opacity: 0.5; }
+}
+
+.wave-l {
+  transform-origin: 2px 10px;
+  animation: wave-l 0.15s 14 alternate ease-in-out;
+}
+.wave-r {
+  transform-origin: 13px 10px;
+  animation: wave-r 0.15s 14 alternate ease-in-out;
+}
+@keyframes wave-l {
+  0% { transform: rotate(45deg); }
+  100% { transform: rotate(85deg); }
+}
+@keyframes wave-r {
+  0% { transform: rotate(-45deg); }
+  100% { transform: rotate(-85deg); }
+}
+
+/* Settling: hold happy face briefly, no motion */
+.state-happy.settling .bounce-anim { animation: none; }
+.state-happy.settling .shadow-bounce { animation: none; }
+.state-happy.settling .wave-l,
+.state-happy.settling .wave-r { animation: none; transform: rotate(0deg); }
+.state-happy.settling .sparkles { opacity: 0; transition: opacity 0.3s ease; }
+
+/* Sparkles */
+.spark-center {
+  opacity: 0;
+  animation: flash-center 0.7s 3 step-end;
+  animation-delay: var(--delay, 0s);
+}
+.spark-outer {
+  opacity: 0;
+  animation: flash-outer 0.7s 3 step-end;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes flash-center {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  30%, 100% { opacity: 0; }
+}
+@keyframes flash-outer {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  40%, 100% { opacity: 0; }
+}
+
+/* ---------- COFFEE STATION ---------- */
+
+#coffee-station {
+  position: absolute;
+  right: 2px;
+  bottom: 8px;
+  width: 46px;
+  height: 90px;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+#coffee-station.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+#machine-svg { display: block; }
+
+#machine-light {
+  animation: machine-blink 3s infinite step-end;
+}
+@keyframes machine-blink {
+  0%, 90% { fill: #4CAF50; }
+  45%, 55% { fill: #7CB342; }
+}
+
+#coffee-mug {
+  position: absolute;
+  bottom: 2px;
+  left: 6px;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Pour phase: machine fills the mug --- */
+
+.coffee-pour #machine-light { fill: #FF9800 !important; animation: none !important; }
+
+.coffee-pour #coffee-stream {
+  animation: pour-stream 2.5s ease-in forwards;
+}
+@keyframes pour-stream {
+  0%   { height: 0; opacity: 0; }
+  10%  { height: 0.5; opacity: 0.9; }
+  80%  { height: 1.2; opacity: 0.9; }
+  100% { height: 0; opacity: 0; }
+}
+
+.coffee-pour #mug-liquid {
+  animation: fill-mug 2.5s ease-out forwards;
+}
+@keyframes fill-mug {
+  0%   { transform: scaleY(0); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: scaleY(1); opacity: 0.9; }
+}
+
+/* --- Grab phase: mug stays, Claw'd turns to reach it --- */
+
+.coffee-grab #mug-liquid { transform: scaleY(1); opacity: 0.9; }
+.coffee-grab #mug-steam { opacity: 1; }
+
+/* --- Drink phase: mug travels to Claw'd's hand area --- */
+
+.coffee-drink #coffee-mug {
+  transform: translate(-20px, -20px) rotate(-10deg);
+}
+.coffee-drink #mug-liquid { transform: scaleY(1); opacity: 0.9; }
+.coffee-drink #mug-steam { opacity: 1; }
+
+/* --- Sip phase: mug tilts up at face, ^_^ single eye squint --- */
+
+.coffee-sip #coffee-mug {
+  transform: translate(-20px, -28px) rotate(-35deg);
+  transition: transform 0.4s ease-in-out;
+}
+.coffee-sip #mug-liquid { transform: scaleY(1); opacity: 0.9; }
+.coffee-sip #mug-steam { opacity: 1; }
+
+/* --- Return phase: mug goes back to machine --- */
+
+.coffee-return #coffee-mug {
+  transform: translate(0, 0) rotate(0deg);
+  transition: transform 0.6s ease-in;
+}
+.coffee-return #mug-liquid {
+  transform: scaleY(0.5);
+  opacity: 0.6;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.coffee-return #mug-steam { opacity: 0; transition: opacity 0.3s ease; }
+
+.steam {
+  animation: steam-rise 1.6s ease-in infinite;
+}
+.steam.s2 { animation-delay: 0.6s; }
+
+@keyframes steam-rise {
+  0% { transform: translateY(0) scaleY(0.6); opacity: 0; }
+  30% { opacity: 0.6; }
+  100% { transform: translateY(-3px) scaleY(1.2); opacity: 0; }
+}
+
+/* ---------- AFK STRETCH (long typing break reminder) ---------- */
+
+/* Phase 1: lean back from laptop */
+.stretch-lean #typing-body {
+  animation: stretch-lean-back 0.8s ease-out forwards;
+  transform-origin: 10px 14px;
+}
+.stretch-lean .type-arm-l,
+.stretch-lean .type-arm-r { animation: none !important; }
+.stretch-lean .type-arm-l { transform: translate(0, -1px); transition: transform 0.6s ease; }
+.stretch-lean #type-arm-right { transform: translate(0, -1px); transition: transform 0.6s ease; }
+.stretch-lean .eyes-read { animation: none !important; }
+.stretch-lean #typing-laptop { opacity: 0.3; transition: opacity 0.4s ease; }
+
+@keyframes stretch-lean-back {
+  0% { transform: none; }
+  100% { transform: rotate(6deg) translateX(1px); }
+}
+
+/* Phase 2: arms stretch up (close to body) */
+.stretch-up #typing-body {
+  transform: rotate(6deg) translateX(1px);
+  transform-origin: 10px 14px;
+}
+.stretch-up .type-arm-l,
+.stretch-up .type-arm-r { animation: none !important; }
+.stretch-up .type-arm-l {
+  animation: stretch-arm-near 0.5s ease-out forwards !important;
+}
+.stretch-up #type-arm-right {
+  animation: stretch-arm-far 0.5s ease-out forwards !important;
+}
+.stretch-up .eyes-read { animation: none !important; }
+.stretch-up #typing-laptop { opacity: 0.3; }
+
+@keyframes stretch-arm-near {
+  0% { transform: translate(0, -1px); }
+  100% { transform: translate(0, -3px); }
+}
+@keyframes stretch-arm-far {
+  0% { transform: translate(0, -1px); }
+  100% { transform: translate(0.5px, -3px); }
+}
+
+/* Phase 3: hold stretch — eyes closed */
+.stretch-hold #typing-body {
+  transform: rotate(6deg) translateX(1px);
+  transform-origin: 10px 14px;
+}
+.stretch-hold .type-arm-l,
+.stretch-hold .type-arm-r { animation: none !important; }
+.stretch-hold .type-arm-l { transform: translate(0, -3px); }
+.stretch-hold #type-arm-right { transform: translate(0.5px, -3px); }
+.stretch-hold .eyes-read {
+  animation: none !important;
+  transform: scaleY(0.15);
+  transform-origin: 8.5px 8px;
+  transition: transform 0.3s ease;
+}
+.stretch-hold #typing-laptop { opacity: 0.3; }
+
+/* Phase 4: yawn — ^_^ eyes */
+.stretch-yawn #typing-body {
+  transform: rotate(6deg) translateX(1px);
+  transform-origin: 10px 14px;
+  animation: yawn-shudder 0.3s ease-in-out 2;
+}
+.stretch-yawn .type-arm-l,
+.stretch-yawn .type-arm-r { animation: none !important; }
+.stretch-yawn .type-arm-l { transform: translate(0, -3px); }
+.stretch-yawn #type-arm-right { transform: translate(0.5px, -3px); }
+.stretch-yawn .eyes-read { opacity: 0; }
+.stretch-yawn #typing-happy-eyes { opacity: 1 !important; }
+.stretch-yawn #typing-laptop { opacity: 0.3; }
+
+@keyframes yawn-shudder {
+  0%, 100% { transform: rotate(6deg) translateX(1px); }
+  50% { transform: rotate(7deg) translateX(1px) scaleY(0.97); }
+}
+
+/* Phase 5: settle back to typing */
+.stretch-return #typing-body {
+  animation: stretch-settle 0.6s ease-in forwards;
+  transform-origin: 10px 14px;
+}
+.stretch-return .type-arm-l {
+  animation: stretch-arm-near-back 0.5s ease-in forwards !important;
+}
+.stretch-return #type-arm-right {
+  animation: stretch-arm-far-back 0.5s ease-in forwards !important;
+}
+.stretch-return .eyes-read { opacity: 1; }
+.stretch-return #typing-happy-eyes { opacity: 0 !important; }
+.stretch-return #typing-laptop { opacity: 1; transition: opacity 0.4s ease 0.3s; }
+
+@keyframes stretch-settle {
+  0% { transform: rotate(6deg) translateX(1px); }
+  100% { transform: none; }
+}
+@keyframes stretch-arm-near-back {
+  0% { transform: translate(0, -3px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes stretch-arm-far-back {
+  0% { transform: translate(0.5px, -3px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Instance count badge */
+#instance-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #DE886D;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 8px;
+  border: 1px solid white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+#instance-badge.show { opacity: 1; }
+
+/* ---------- stats toggle button ---------- */
+
+#stats-toggle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(40,32,26,0.55);
+  color: #FDF6EC;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+#stats-toggle:hover { background: rgba(40,32,26,0.8); transform: scale(1.08); }
+
+/* ---------- token panel ---------- */
+
+#panel {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  background: rgba(30, 24, 20, 0.88);
+  color: #FDF6EC;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+#panel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+#panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #E3A98A;
+  margin-bottom: 6px;
+}
+#close-btn {
+  background: none;
+  border: none;
+  color: #FDF6EC;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+}
+#close-btn:hover { color: #FF9E7A; }
+
+.stat-row { display: flex; justify-content: space-between; }
+.stat-label { color: #C9B6A9; }
+.stat-value { font-variant-numeric: tabular-nums; font-weight: 600; }

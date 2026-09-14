@@ -1,0 +1,13 @@
+{
+  "name": "clawd",
+  "version": "0.1.0",
+  "description": "A little desktop pet that reacts to what your Claude sessions are doing, plus a token-burn panel.",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^44.3.0"
+  }
+}

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Clawd</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="stage">
+    <div id="panel" class="interactive">
+      <div id="panel-header">
+        <span>token burn</span>
+        <button id="close-btn" class="interactive" title="Quit Clawd">&times;</button>
+      </div>
+      <div class="stat-row"><span class="stat-label">today</span><span id="stat-today" class="stat-value">–</span></div>
+      <div class="stat-row"><span class="stat-label">this week</span><span id="stat-week" class="stat-value">–</span></div>
+      <div class="stat-row"><span class="stat-label">all time</span><span id="stat-all" class="stat-value">–</span></div>
+      <div class="stat-row"><span class="stat-label">sessions today</span><span id="stat-sessions" class="stat-value">–</span></div>
+    </div>
+
+    <button id="stats-toggle" class="interactive" title="Token stats">◔</button>
+
+    <div id="clawd-wrap">
+      <div id="clawd" class="interactive state-awake">
+
+        <!-- ===== AWAKE / DEFAULT POSE ===== -->
+        <svg id="body-svg" class="pose pose-awake" viewBox="-2 -2 19 20" width="152" height="160">
+          <rect id="shadow" x="3" y="15" width="9" height="1" fill="#000000" opacity="0.4"/>
+
+          <g id="master-group" class="breathe-anim">
+            <g id="body-color-group" fill="#DE886D">
+              <rect id="torso" x="2" y="6" width="11" height="7"/>
+              <g id="arm-left" class="arm-l">
+                <rect x="0" y="9" width="2" height="2"/>
+              </g>
+              <g id="arm-right" class="arm-r">
+                <rect x="13" y="9" width="2" height="2"/>
+              </g>
+              <rect class="leg" x="3" y="13" width="1" height="2"/>
+              <rect class="leg" x="5" y="13" width="1" height="2"/>
+              <rect class="leg" x="9" y="13" width="1" height="2"/>
+              <rect class="leg" x="11" y="13" width="1" height="2"/>
+            </g>
+            <g id="eyes" fill="#000000">
+              <rect id="eye-left" x="4" y="8" width="1" height="2"/>
+              <rect id="eye-right" x="10" y="8" width="1" height="2"/>
+            </g>
+
+            <!-- Vibing eyes (flat chill lines, hidden by default) -->
+            <g id="vibe-eyes" fill="#000000" opacity="0">
+              <rect x="4" y="9" width="2" height="0.5"/>
+              <rect x="9" y="9" width="2" height="0.5"/>
+            </g>
+
+            <!-- Headphones (hidden, shown when vibing) -->
+            <g id="headphones" opacity="0">
+              <!-- Headband -->
+              <rect x="1" y="5" width="13" height="1" fill="#333" rx="0.3"/>
+              <rect x="1" y="4" width="1" height="2" fill="#333"/>
+              <rect x="13" y="4" width="1" height="2" fill="#333"/>
+              <!-- Left ear cup -->
+              <rect x="0" y="6" width="2" height="3" fill="#444" rx="0.3"/>
+              <rect x="0.3" y="6.5" width="1.4" height="2" fill="#555"/>
+              <!-- Right ear cup -->
+              <rect x="13" y="6" width="2" height="3" fill="#444" rx="0.3"/>
+              <rect x="13.3" y="6.5" width="1.4" height="2" fill="#555"/>
+            </g>
+
+            <!-- Music notes (float up from headphones) -->
+            <g id="music-notes" opacity="0">
+              <!-- Left side notes -->
+              <g class="note note-l1" fill="#90A4AE">
+                <rect x="-1" y="5" width="1" height="2"/>
+                <rect x="-1" y="5" width="2" height="0.8" rx="0.3"/>
+              </g>
+              <g class="note note-l2" fill="#B0BEC5">
+                <rect x="-2" y="6" width="1" height="1.5"/>
+                <rect x="-2" y="6" width="1.5" height="0.6" rx="0.2"/>
+              </g>
+              <!-- Right side notes -->
+              <g class="note note-r1" fill="#90A4AE">
+                <rect x="15" y="5" width="1" height="2"/>
+                <rect x="15" y="5" width="2" height="0.8" rx="0.3"/>
+              </g>
+              <g class="note note-r2" fill="#B0BEC5">
+                <rect x="16" y="6" width="1" height="1.5"/>
+                <rect x="16" y="6" width="1.5" height="0.6" rx="0.2"/>
+              </g>
+            </g>
+
+            <!-- Late-night tired eyes (half-closed, hidden by default) -->
+            <g id="tired-eyes" fill="#000000" opacity="0">
+              <!-- Droopy eyelids (top half covers normal eyes) -->
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+              <!-- Eye bags -->
+              <rect x="3.5" y="10" width="2" height="0.5" fill="#C07058" rx="0.2"/>
+              <rect x="9.5" y="10" width="2" height="0.5" fill="#C07058" rx="0.2"/>
+            </g>
+
+            <!-- Thug life sunglasses (hidden, shown during thuglife idle) -->
+            <g id="thug-shades" opacity="0">
+              <!-- Top bar -->
+              <rect x="2" y="7.5" width="11" height="0.5" fill="#111"/>
+              <!-- Temple arms -->
+              <rect x="1" y="7" width="1" height="1" fill="#111"/>
+              <rect x="13" y="7" width="1" height="1" fill="#111"/>
+              <!-- Left lens (small trapezoid) -->
+              <rect x="3" y="8" width="3" height="1" fill="#111"/>
+              <rect x="3.5" y="9" width="2" height="0.5" fill="#111"/>
+              <!-- Right lens (mirror) -->
+              <rect x="9" y="8" width="3" height="1" fill="#111"/>
+              <rect x="9.5" y="9" width="2" height="0.5" fill="#111"/>
+              <!-- Bridge -->
+              <rect x="6" y="8" width="3" height="0.5" fill="#111"/>
+              <!-- Lens shine -->
+              <rect x="3.5" y="8.2" width="0.5" height="0.5" fill="#333"/>
+              <rect x="9.5" y="8.2" width="0.5" height="0.5" fill="#333"/>
+            </g>
+
+            <!-- Remote control (hidden, shown when ignored) -->
+            <g id="remote-prop" opacity="0">
+              <rect x="14" y="7" width="1.5" height="3" fill="#444" rx="0.3"/>
+              <rect x="14.3" y="7.5" width="0.9" height="0.5" fill="#F44336" rx="0.2"/>
+              <rect x="14.3" y="8.3" width="0.9" height="0.3" fill="#666"/>
+              <rect x="14.3" y="8.8" width="0.9" height="0.3" fill="#666"/>
+            </g>
+
+            <!-- Copy: paper prop (right arm, hidden by default) -->
+            <g id="copy-prop" opacity="0">
+              <rect x="13.5" y="6" width="3" height="4" fill="#F5F5F5" rx="0.2"/>
+              <rect x="15.5" y="6" width="1" height="1" fill="#E0E0E0"/>
+              <rect x="14" y="7.2" width="2" height="0.3" fill="#BDBDBD"/>
+              <rect x="14" y="7.8" width="1.5" height="0.3" fill="#BDBDBD"/>
+              <rect x="14" y="8.4" width="1.8" height="0.3" fill="#BDBDBD"/>
+            </g>
+
+            <!-- Paste: pencil prop (left arm, hidden by default) -->
+            <g id="paste-prop" opacity="0">
+              <rect x="-1.6" y="5.5" width="0.8" height="3.5" fill="#FDD835"/>
+              <rect x="-1.5" y="9" width="0.6" height="0.8" fill="#333"/>
+              <rect x="-1.7" y="5" width="1" height="0.7" fill="#E91E63" rx="0.2"/>
+              <rect x="-1.7" y="5.7" width="1" height="0.4" fill="#9E9E9E"/>
+            </g>
+
+            <!-- Low battery icon (floats above head, hidden by default) -->
+            <g id="low-battery" opacity="0">
+              <rect x="5" y="1" width="5" height="3" fill="none" stroke="#FF5252" stroke-width="0.5" rx="0.3"/>
+              <rect x="10" y="1.8" width="0.8" height="1.4" fill="#FF5252" rx="0.2"/>
+              <!-- Single bar (low) -->
+              <rect x="5.6" y="1.6" width="1.2" height="1.8" fill="#FF5252" rx="0.2"/>
+              <!-- Exclamation -->
+              <rect x="12" y="1" width="0.8" height="2" fill="#FF5252"/>
+              <rect x="12" y="3.3" width="0.8" height="0.8" fill="#FF5252"/>
+            </g>
+
+          </g>
+        </svg>
+
+        <!-- ===== SLEEPING POSE ===== -->
+        <svg id="sleep-svg" class="pose pose-sleep" viewBox="-2 -2 19 20" width="152" height="160">
+          <defs>
+            <g id="pixel-z">
+              <rect x="0" y="0" width="4" height="1"/>
+              <rect x="2" y="1" width="1" height="1"/>
+              <rect x="1" y="2" width="1" height="1"/>
+              <rect x="0" y="3" width="4" height="1"/>
+            </g>
+            <g id="pixel-z-sm">
+              <rect x="0" y="0" width="3" height="1"/>
+              <rect x="1" y="1" width="1" height="1"/>
+              <rect x="0" y="2" width="3" height="1"/>
+            </g>
+          </defs>
+
+          <rect x="-1" y="15" width="17" height="1" fill="#000000" opacity="0.35" class="shadow-breathe"/>
+
+          <!-- Floating Zzz -->
+          <g class="zzz-particles">
+            <use href="#pixel-z" class="z-particle z1" fill="#90A4AE"/>
+            <use href="#pixel-z-sm" class="z-particle z2" fill="#B0BEC5"/>
+            <use href="#pixel-z" class="z-particle z3" fill="#CFD8DC"/>
+          </g>
+
+          <!-- Splooted body -->
+          <g class="sleep-breathe">
+            <g fill="#DE886D">
+              <rect x="3" y="9" width="1" height="1"/>
+              <rect x="5" y="9" width="1" height="1"/>
+              <rect x="9" y="9" width="1" height="1"/>
+              <rect x="11" y="9" width="1" height="1"/>
+            </g>
+            <g fill="#DE886D">
+              <rect x="1" y="10" width="13" height="5"/>
+              <rect x="-1" y="13" width="2" height="2"/>
+              <rect x="14" y="13" width="2" height="2"/>
+            </g>
+            <g fill="#000000">
+              <rect x="3.5" y="12.5" width="2" height="0.4"/>
+              <rect x="9.5" y="12.5" width="2" height="0.4"/>
+            </g>
+          </g>
+        </svg>
+
+        <!-- ===== TYPING POSE (full side profile, facing left) ===== -->
+        <svg id="typing-svg" class="pose pose-typing" viewBox="-2 -2 19 20" width="152" height="160">
+          <g id="typing-lean">
+            <!-- Shadow -->
+            <rect x="3" y="15" width="10" height="1" fill="#000000" opacity="0.3"/>
+
+            <!-- Laptop (side view, stays put during coffee turn) -->
+            <g id="typing-laptop">
+              <!-- Screen (thin, tilted back from hinge at keyboard) -->
+              <g transform="rotate(-15, 3, 14)">
+                <rect x="2.5" y="9" width="1.2" height="5" fill="#78909C" rx="0.2"/>
+                <rect x="2.8" y="11" width="0.6" height="0.8" fill="#FFFFFF" class="logo-glow"/>
+              </g>
+              <!-- Keyboard base -->
+              <rect x="2" y="14" width="7" height="1" fill="#546E7A"/>
+            </g>
+
+            <!-- Claw'd body (side profile, flips for coffee) -->
+            <g id="typing-body">
+              <!-- Legs (side view, two visible) -->
+              <g fill="#DE886D">
+                <rect x="8" y="12" width="1" height="3"/>
+                <rect x="11" y="12" width="1" height="3"/>
+              </g>
+
+              <g class="breathe-anim">
+                <!-- Body (side profile, narrower) -->
+                <rect x="7" y="5" width="6" height="7" fill="#DE886D"/>
+
+                <!-- Single eye (facing left toward screen) -->
+                <g fill="#000000" class="eyes-read">
+                  <rect x="8" y="7" width="1" height="2"/>
+                </g>
+                <!-- ^_^ single eye for coffee sip -->
+                <g id="typing-happy-eyes" fill="#000000" opacity="0">
+                  <rect x="7" y="8" width="1" height="1"/>
+                  <rect x="8" y="7" width="1" height="1"/>
+                  <rect x="9" y="8" width="1" height="1"/>
+                </g>
+
+                <!-- Side-profile headphones (hidden, shown when vibing+action) -->
+                <g id="typing-headphones" opacity="0">
+                  <!-- Headband (across top of head) -->
+                  <rect x="7" y="4" width="6" height="1" fill="#333" rx="0.2"/>
+                  <!-- Strap down to ear (back of head) -->
+                  <rect x="12" y="4" width="1" height="4" fill="#333"/>
+                  <!-- Ear cup (behind eye, at ear level) -->
+                  <rect x="11.5" y="7" width="2.5" height="3" fill="#444" rx="0.3"/>
+                  <rect x="12" y="7.5" width="1.5" height="2" fill="#555"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- Paw on keyboard (near paw, typing) -->
+            <g class="type-arm-l"><rect x="5" y="13.5" width="2" height="1" fill="#DE886D"/></g>
+            <!-- Far paw (behind, subtle depth) -->
+            <g id="type-arm-right" class="type-arm-r"><rect x="5.5" y="13.3" width="1.5" height="0.8" fill="#C9775D"/></g>
+          </g>
+        </svg>
+
+        <!-- ===== WALKING POSE (side profile, facing right) ===== -->
+        <svg id="walk-svg" class="pose pose-walk" viewBox="-2 -2 19 20" width="152" height="160">
+          <rect x="5" y="15" width="6" height="1" fill="#000000" opacity="0.3"/>
+          <g class="walk-bounce">
+            <g fill="#DE886D">
+              <!-- Side-profile body (6px wide, same as typing) -->
+              <rect x="5" y="5" width="6" height="7"/>
+
+              <!-- Front leg (closer to viewer, darker) -->
+              <g class="walk-leg-front">
+                <rect x="7" y="12" width="1" height="3"/>
+              </g>
+              <!-- Back leg (further, lighter shade) -->
+              <g class="walk-leg-back">
+                <rect x="9" y="12" width="1" height="3" fill="#C9775D"/>
+              </g>
+
+              <!-- Front arm (swings opposite to front leg) -->
+              <g class="walk-arm-front">
+                <rect x="5" y="8" width="1" height="2"/>
+              </g>
+              <!-- Back arm (behind body, lighter) -->
+              <g class="walk-arm-back">
+                <rect x="10" y="8" width="1" height="2" fill="#C9775D"/>
+              </g>
+            </g>
+            <!-- Single eye (side profile, facing right) -->
+            <g fill="#000000">
+              <rect x="9" y="7" width="1" height="2"/>
+            </g>
+          </g>
+        </svg>
+
+        <!-- ===== HAPPY POSE ===== -->
+        <svg id="happy-svg" class="pose pose-happy" viewBox="-2 -2 19 20" width="152" height="160">
+          <defs>
+            <g id="px-sparkle">
+              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
+              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
+            </g>
+          </defs>
+
+          <rect x="3" y="15" width="9" height="1" fill="#000000" class="shadow-bounce"/>
+
+          <g class="sparkles">
+            <use href="#px-sparkle" x="-1" y="0" fill="#FFD700" style="--delay: 0s"/>
+            <use href="#px-sparkle" x="15" y="-1" fill="#FFA000" style="--delay: 0.3s"/>
+            <use href="#px-sparkle" x="15" y="8" fill="#FFF59D" style="--delay: 0.6s"/>
+            <use href="#px-sparkle" x="-1" y="10" fill="#FFC107" style="--delay: 0.9s"/>
+          </g>
+
+          <g class="bounce-anim">
+            <g fill="#DE886D">
+              <rect x="3" y="13" width="1" height="2"/>
+              <rect x="5" y="13" width="1" height="2"/>
+              <rect x="9" y="13" width="1" height="2"/>
+              <rect x="11" y="13" width="1" height="2"/>
+              <rect x="2" y="6" width="11" height="7"/>
+              <g class="wave-l"><rect x="0" y="9" width="2" height="2"/></g>
+              <g class="wave-r"><rect x="13" y="9" width="2" height="2"/></g>
+            </g>
+            <!-- ^_^ happy eyes -->
+            <g fill="#000000" class="happy-eyes">
+              <!-- Left eye ^ -->
+              <rect x="3" y="9" width="1" height="1"/>
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="5" y="9" width="1" height="1"/>
+              <!-- Right eye ^ -->
+              <rect x="9" y="9" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+              <rect x="11" y="9" width="1" height="1"/>
+            </g>
+          </g>
+        </svg>
+
+        <!-- ===== SCREENSHOT / CHEESE POSE ===== -->
+        <svg id="cheese-svg" class="pose pose-cheese" viewBox="-2 -2 19 20" width="152" height="160">
+          <rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.4"/>
+
+          <g class="cheese-pop">
+            <g fill="#DE886D">
+              <!-- Legs -->
+              <rect x="3" y="13" width="1" height="2"/>
+              <rect x="5" y="13" width="1" height="2"/>
+              <rect x="9" y="13" width="1" height="2"/>
+              <rect x="11" y="13" width="1" height="2"/>
+              <!-- Body -->
+              <rect x="2" y="6" width="11" height="7"/>
+              <!-- Arms raised in V pose -->
+              <g class="cheese-arm-l">
+                <rect x="0" y="6" width="2" height="2"/>
+              </g>
+              <g class="cheese-arm-r">
+                <rect x="13" y="6" width="2" height="2"/>
+              </g>
+            </g>
+            <!-- ^_^ happy eyes -->
+            <g fill="#000000">
+              <rect x="3" y="9" width="1" height="1"/>
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="5" y="9" width="1" height="1"/>
+              <rect x="9" y="9" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+              <rect x="11" y="9" width="1" height="1"/>
+            </g>
+            <!-- Blush marks -->
+            <rect x="2.5" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+            <rect x="11" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+          </g>
+
+          <!-- Camera flash effect -->
+          <rect class="camera-flash" x="-2" y="-2" width="19" height="20" fill="#FFF" opacity="0"/>
+        </svg>
+
+        <!-- ===== CHARGING CELEBRATION ===== -->
+        <svg id="charging-svg" class="pose pose-charging" viewBox="-2 -2 19 20" width="152" height="160">
+          <rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.4" class="charge-shadow"/>
+
+          <g class="charge-bounce">
+            <g fill="#DE886D">
+              <!-- Legs -->
+              <rect x="3" y="13" width="1" height="2"/>
+              <rect x="5" y="13" width="1" height="2"/>
+              <rect x="9" y="13" width="1" height="2"/>
+              <rect x="11" y="13" width="1" height="2"/>
+              <!-- Body -->
+              <rect x="2" y="6" width="11" height="7"/>
+              <!-- Arms raised (fist pump) -->
+              <g class="charge-arm-l">
+                <rect x="0" y="6" width="2" height="2"/>
+              </g>
+              <g class="charge-arm-r">
+                <rect x="13" y="6" width="2" height="2"/>
+              </g>
+            </g>
+            <!-- ^_^ happy eyes -->
+            <g fill="#000000">
+              <rect x="3" y="9" width="1" height="1"/>
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="5" y="9" width="1" height="1"/>
+              <rect x="9" y="9" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+              <rect x="11" y="9" width="1" height="1"/>
+            </g>
+            <!-- Blush -->
+            <rect x="2.5" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+            <rect x="11" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+          </g>
+
+          <!-- Lightning bolt above head -->
+          <g class="charge-bolt">
+            <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFD600"/>
+            <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFF176" opacity="0.5"/>
+          </g>
+
+          <!-- Energy sparks -->
+          <g class="charge-sparks">
+            <rect class="charge-spark" x="1" y="4" width="1" height="1" fill="#FFD600" style="--d:0s"/>
+            <rect class="charge-spark" x="13" y="3" width="1" height="1" fill="#FFD600" style="--d:0.15s"/>
+            <rect class="charge-spark" x="0" y="8" width="1" height="1" fill="#FFF176" style="--d:0.3s"/>
+            <rect class="charge-spark" x="14" y="7" width="1" height="1" fill="#FFF176" style="--d:0.1s"/>
+            <rect class="charge-spark" x="3" y="2" width="1" height="1" fill="#FFD600" style="--d:0.25s"/>
+            <rect class="charge-spark" x="11" y="1" width="1" height="1" fill="#FFD600" style="--d:0.4s"/>
+          </g>
+        </svg>
+
+        <!-- ===== IGNORED BANNER (parachute drop) ===== -->
+        <div id="ignored-banner">
+          <div id="parachute">🪂</div>
+          <div id="banner-sign">Claude Opus 4.6<br>is GOAT 🐐</div>
+        </div>
+
+      </div>
+
+      <!-- ===== COFFEE MACHINE (visible during action state) ===== -->
+      <div id="coffee-station">
+        <div id="instance-badge">+2</div>
+        <svg id="machine-svg" viewBox="0 0 7 11" width="42" height="66">
+          <!-- Machine body -->
+          <rect x="0" y="0" width="7" height="2" fill="#455A64"/>
+          <rect x="1" y="2" width="5" height="5" fill="#546E7A"/>
+          <rect x="2" y="3" width="3" height="2" fill="#37474F"/>
+          <!-- Button/light -->
+          <rect id="machine-light" x="5" y="4" width="1" height="1" fill="#4CAF50"/>
+          <!-- Spout -->
+          <rect x="2" y="7" width="1" height="1" fill="#37474F"/>
+          <!-- Platform -->
+          <rect x="0" y="9" width="7" height="1" fill="#455A64"/>
+          <!-- Coffee stream (hidden by default, shown during pour) -->
+          <rect id="coffee-stream" x="2.2" y="7.8" width="0.6" height="0" fill="#5D4037" opacity="0"/>
+        </svg>
+
+        <!-- Mug (sits on platform, animates to Claw'd during drink) -->
+        <div id="coffee-mug">
+          <svg viewBox="0 0 5 4" width="30" height="24">
+            <rect x="0" y="0" width="3" height="3" fill="#EDEDED"/>
+            <rect x="3" y="0.5" width="1.5" height="2" fill="none" stroke="#C9C9C9" stroke-width="0.4" rx="0.5"/>
+            <!-- Coffee liquid inside (scales up during pour) -->
+            <rect id="mug-liquid" x="0.3" y="0.5" width="2.4" height="2" fill="#5D4037" opacity="0" style="transform-origin: 1.5px 2.5px; transform: scaleY(0);"/>
+            <!-- Steam -->
+            <g id="mug-steam" opacity="0">
+              <rect x="0.5" y="-1.5" width="0.5" height="1" fill="rgba(255,255,255,0.4)" class="steam s1"/>
+              <rect x="1.5" y="-1.5" width="0.5" height="1" fill="rgba(255,255,255,0.4)" class="steam s2"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
