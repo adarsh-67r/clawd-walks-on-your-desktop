@@ -154,6 +154,67 @@
               <rect x="12" y="3.3" width="0.8" height="0.8" fill="#FF5252"/>
             </g>
 
+            <!-- Happy eyes ^_^ (shown in happy/cheese/charging) -->
+            <g id="happy-eyes" fill="#000000" opacity="0">
+              <rect x="3" y="9" width="1" height="1"/>
+              <rect x="4" y="8" width="1" height="1"/>
+              <rect x="5" y="9" width="1" height="1"/>
+              <rect x="9" y="9" width="1" height="1"/>
+              <rect x="10" y="8" width="1" height="1"/>
+              <rect x="11" y="9" width="1" height="1"/>
+            </g>
+
+            <!-- Blush marks (shown in cheese/charging) -->
+            <g id="blush" opacity="0">
+              <rect x="2.5" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+              <rect x="11" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
+            </g>
+
+            <!-- Raised arms at y=6 (for cheese/charging poses) -->
+            <g id="arm-left-raised" class="arm-raised-l" fill="#DE886D">
+              <rect x="0" y="6" width="2" height="2"/>
+            </g>
+            <g id="arm-right-raised" class="arm-raised-r" fill="#DE886D">
+              <rect x="13" y="6" width="2" height="2"/>
+            </g>
+
+          </g>
+
+          <!-- Sparkles (happy state, inlined for reliable animation restart) -->
+          <g id="sparkles" opacity="0">
+            <g transform="translate(-1, 0)" fill="#FFD700" style="--delay: 0s">
+              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
+              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
+            </g>
+            <g transform="translate(15, -1)" fill="#FFA000" style="--delay: 0.3s">
+              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
+              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
+            </g>
+            <g transform="translate(15, 8)" fill="#FFF59D" style="--delay: 0.6s">
+              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
+              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
+            </g>
+            <g transform="translate(-1, 10)" fill="#FFC107" style="--delay: 0.9s">
+              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
+              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
+            </g>
+          </g>
+
+          <!-- Camera flash (cheese state) -->
+          <rect id="camera-flash" x="-2" y="-2" width="19" height="20" fill="#FFF" opacity="0"/>
+
+          <!-- Charge effects (charging state) -->
+          <g id="charge-effects" opacity="0">
+            <g class="charge-bolt">
+              <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFD600"/>
+              <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFF176" opacity="0.5"/>
+            </g>
+            <rect class="charge-spark" x="1" y="4" width="1" height="1" fill="#FFD600" style="--d:0s"/>
+            <rect class="charge-spark" x="13" y="3" width="1" height="1" fill="#FFD600" style="--d:0.15s"/>
+            <rect class="charge-spark" x="0" y="8" width="1" height="1" fill="#FFF176" style="--d:0.3s"/>
+            <rect class="charge-spark" x="14" y="7" width="1" height="1" fill="#FFF176" style="--d:0.1s"/>
+            <rect class="charge-spark" x="3" y="2" width="1" height="1" fill="#FFD600" style="--d:0.25s"/>
+            <rect class="charge-spark" x="11" y="1" width="1" height="1" fill="#FFD600" style="--d:0.4s"/>
           </g>
         </svg>
 
@@ -292,139 +353,6 @@
             <g fill="#000000">
               <rect x="9" y="7" width="1" height="2"/>
             </g>
-          </g>
-        </svg>
-
-        <!-- ===== HAPPY POSE ===== -->
-        <svg id="happy-svg" class="pose pose-happy" viewBox="-2 -2 19 20" width="152" height="160">
-          <defs>
-            <g id="px-sparkle">
-              <rect class="spark-center" x="-0.5" y="-0.5" width="1" height="1"/>
-              <path class="spark-outer" d="M -0.5,-1.5 h1 v1 h-1 z M -0.5,0.5 h1 v1 h-1 z M -1.5,-0.5 h1 v1 h-1 z M 0.5,-0.5 h1 v1 h-1 z"/>
-            </g>
-          </defs>
-
-          <rect x="3" y="15" width="9" height="1" fill="#000000" class="shadow-bounce"/>
-
-          <g class="sparkles">
-            <use href="#px-sparkle" x="-1" y="0" fill="#FFD700" style="--delay: 0s"/>
-            <use href="#px-sparkle" x="15" y="-1" fill="#FFA000" style="--delay: 0.3s"/>
-            <use href="#px-sparkle" x="15" y="8" fill="#FFF59D" style="--delay: 0.6s"/>
-            <use href="#px-sparkle" x="-1" y="10" fill="#FFC107" style="--delay: 0.9s"/>
-          </g>
-
-          <g class="bounce-anim">
-            <g fill="#DE886D">
-              <rect x="3" y="13" width="1" height="2"/>
-              <rect x="5" y="13" width="1" height="2"/>
-              <rect x="9" y="13" width="1" height="2"/>
-              <rect x="11" y="13" width="1" height="2"/>
-              <rect x="2" y="6" width="11" height="7"/>
-              <g class="wave-l"><rect x="0" y="9" width="2" height="2"/></g>
-              <g class="wave-r"><rect x="13" y="9" width="2" height="2"/></g>
-            </g>
-            <!-- ^_^ happy eyes -->
-            <g fill="#000000" class="happy-eyes">
-              <!-- Left eye ^ -->
-              <rect x="3" y="9" width="1" height="1"/>
-              <rect x="4" y="8" width="1" height="1"/>
-              <rect x="5" y="9" width="1" height="1"/>
-              <!-- Right eye ^ -->
-              <rect x="9" y="9" width="1" height="1"/>
-              <rect x="10" y="8" width="1" height="1"/>
-              <rect x="11" y="9" width="1" height="1"/>
-            </g>
-          </g>
-        </svg>
-
-        <!-- ===== SCREENSHOT / CHEESE POSE ===== -->
-        <svg id="cheese-svg" class="pose pose-cheese" viewBox="-2 -2 19 20" width="152" height="160">
-          <rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.4"/>
-
-          <g class="cheese-pop">
-            <g fill="#DE886D">
-              <!-- Legs -->
-              <rect x="3" y="13" width="1" height="2"/>
-              <rect x="5" y="13" width="1" height="2"/>
-              <rect x="9" y="13" width="1" height="2"/>
-              <rect x="11" y="13" width="1" height="2"/>
-              <!-- Body -->
-              <rect x="2" y="6" width="11" height="7"/>
-              <!-- Arms raised in V pose -->
-              <g class="cheese-arm-l">
-                <rect x="0" y="6" width="2" height="2"/>
-              </g>
-              <g class="cheese-arm-r">
-                <rect x="13" y="6" width="2" height="2"/>
-              </g>
-            </g>
-            <!-- ^_^ happy eyes -->
-            <g fill="#000000">
-              <rect x="3" y="9" width="1" height="1"/>
-              <rect x="4" y="8" width="1" height="1"/>
-              <rect x="5" y="9" width="1" height="1"/>
-              <rect x="9" y="9" width="1" height="1"/>
-              <rect x="10" y="8" width="1" height="1"/>
-              <rect x="11" y="9" width="1" height="1"/>
-            </g>
-            <!-- Blush marks -->
-            <rect x="2.5" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
-            <rect x="11" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
-          </g>
-
-          <!-- Camera flash effect -->
-          <rect class="camera-flash" x="-2" y="-2" width="19" height="20" fill="#FFF" opacity="0"/>
-        </svg>
-
-        <!-- ===== CHARGING CELEBRATION ===== -->
-        <svg id="charging-svg" class="pose pose-charging" viewBox="-2 -2 19 20" width="152" height="160">
-          <rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.4" class="charge-shadow"/>
-
-          <g class="charge-bounce">
-            <g fill="#DE886D">
-              <!-- Legs -->
-              <rect x="3" y="13" width="1" height="2"/>
-              <rect x="5" y="13" width="1" height="2"/>
-              <rect x="9" y="13" width="1" height="2"/>
-              <rect x="11" y="13" width="1" height="2"/>
-              <!-- Body -->
-              <rect x="2" y="6" width="11" height="7"/>
-              <!-- Arms raised (fist pump) -->
-              <g class="charge-arm-l">
-                <rect x="0" y="6" width="2" height="2"/>
-              </g>
-              <g class="charge-arm-r">
-                <rect x="13" y="6" width="2" height="2"/>
-              </g>
-            </g>
-            <!-- ^_^ happy eyes -->
-            <g fill="#000000">
-              <rect x="3" y="9" width="1" height="1"/>
-              <rect x="4" y="8" width="1" height="1"/>
-              <rect x="5" y="9" width="1" height="1"/>
-              <rect x="9" y="9" width="1" height="1"/>
-              <rect x="10" y="8" width="1" height="1"/>
-              <rect x="11" y="9" width="1" height="1"/>
-            </g>
-            <!-- Blush -->
-            <rect x="2.5" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
-            <rect x="11" y="9.5" width="1.5" height="0.8" fill="#E8907A" rx="0.3" opacity="0.6"/>
-          </g>
-
-          <!-- Lightning bolt above head -->
-          <g class="charge-bolt">
-            <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFD600"/>
-            <polygon points="8,0 6,3 7.5,3 5.5,6 9,2.5 7.5,2.5 9.5,0" fill="#FFF176" opacity="0.5"/>
-          </g>
-
-          <!-- Energy sparks -->
-          <g class="charge-sparks">
-            <rect class="charge-spark" x="1" y="4" width="1" height="1" fill="#FFD600" style="--d:0s"/>
-            <rect class="charge-spark" x="13" y="3" width="1" height="1" fill="#FFD600" style="--d:0.15s"/>
-            <rect class="charge-spark" x="0" y="8" width="1" height="1" fill="#FFF176" style="--d:0.3s"/>
-            <rect class="charge-spark" x="14" y="7" width="1" height="1" fill="#FFF176" style="--d:0.1s"/>
-            <rect class="charge-spark" x="3" y="2" width="1" height="1" fill="#FFD600" style="--d:0.25s"/>
-            <rect class="charge-spark" x="11" y="1" width="1" height="1" fill="#FFD600" style="--d:0.4s"/>
           </g>
         </svg>
 

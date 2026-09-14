@@ -516,12 +516,76 @@ html, body {
   100% { transform: translate(-2px, 3px); opacity: 0; }
 }
 
-/* ---------- SCREENSHOT / CHEESE ---------- */
+/* ---------- PUPPET RIG: unified front-facing SVG part switching ---------- */
 
-.state-cheese .pose-cheese { display: block; }
+/* Raised arms hidden by default */
+.arm-raised-l, .arm-raised-r { display: none; }
 
-.cheese-pop {
-  animation: cheese-bounce 0.5s ease-out;
+/* All three front-facing states reuse the awake SVG */
+.state-happy .pose-awake,
+.state-cheese .pose-awake,
+.state-charging .pose-awake { display: block; }
+
+/* Hide normal eyes, show happy ^_^ eyes */
+.state-happy #eyes,
+.state-cheese #eyes,
+.state-charging #eyes { opacity: 0; }
+
+.state-happy #happy-eyes,
+.state-cheese #happy-eyes,
+.state-charging #happy-eyes { opacity: 1; }
+
+/* Blush for cheese/charging */
+.state-cheese #blush,
+.state-charging #blush { opacity: 1; }
+
+/* Cheese/Charging: swap to raised arms */
+.state-cheese #arm-left,
+.state-cheese #arm-right,
+.state-charging #arm-left,
+.state-charging #arm-right { display: none; }
+
+.state-cheese .arm-raised-l,
+.state-cheese .arm-raised-r,
+.state-charging .arm-raised-l,
+.state-charging .arm-raised-r { display: block; }
+
+/* ---------- STATE: HAPPY (puppet rig) ---------- */
+
+.state-happy #master-group {
+  animation: bounce 0.7s 3 ease-in-out forwards !important;
+  transform-origin: 7.5px 15px;
+}
+
+.state-happy #shadow {
+  animation: shadow-bounce-kf 0.7s 3 ease-in-out forwards;
+  transform-origin: 7.5px 15.5px;
+}
+
+.state-happy .arm-l {
+  animation: wave-l 0.15s 14 alternate ease-in-out !important;
+  transform-origin: 2px 10px;
+}
+.state-happy .arm-r {
+  animation: wave-r 0.15s 14 alternate ease-in-out !important;
+  transform-origin: 13px 10px;
+}
+
+.state-happy #sparkles { opacity: 1; }
+
+/* Headphones stay on when vibing during happy bounce */
+.state-happy.vibing #headphones { opacity: 1; }
+
+.state-happy.settling #master-group { animation: none !important; }
+.state-happy.settling #shadow { animation: none; }
+.state-happy.settling .arm-l,
+.state-happy.settling .arm-r { animation: none !important; transform: rotate(0deg); }
+.state-happy.settling #sparkles { opacity: 0; transition: opacity 0.3s ease; }
+
+/* ---------- STATE: CHEESE (puppet rig) ---------- */
+
+.state-cheese #master-group {
+  animation: cheese-bounce 0.5s ease-out !important;
   transform-origin: 7.5px 15px;
 }
 
@@ -532,13 +596,12 @@ html, body {
   100% { transform: scale(1, 1); }
 }
 
-/* Arms in V pose, slight wiggle */
-.cheese-arm-l {
+.state-cheese .arm-raised-l {
   transform: rotate(40deg);
   transform-origin: 1px 7px;
   animation: cheese-wave-l 0.3s ease-in-out 3 alternate;
 }
-.cheese-arm-r {
+.state-cheese .arm-raised-r {
   transform: rotate(-40deg);
   transform-origin: 14px 7px;
   animation: cheese-wave-r 0.3s ease-in-out 3 alternate;
@@ -553,8 +616,7 @@ html, body {
   100% { transform: rotate(-50deg); }
 }
 
-/* Camera flash */
-.camera-flash {
+.state-cheese #camera-flash {
   animation: flash-burst 0.6s ease-out forwards;
 }
 
@@ -565,13 +627,11 @@ html, body {
   100% { opacity: 0; }
 }
 
-/* ---------- CHARGING CELEBRATION ---------- */
+/* ---------- STATE: CHARGING (puppet rig) ---------- */
 
-.state-charging .pose-charging { display: block; }
-
-.charge-bounce {
+.state-charging #master-group {
+  animation: charge-jump 0.6s ease-in-out 4 !important;
   transform-origin: 7.5px 15px;
-  animation: charge-jump 0.6s ease-in-out 4;
 }
 
 @keyframes charge-jump {
@@ -583,7 +643,7 @@ html, body {
   85% { transform: translateY(0) scaleY(0.88); }
 }
 
-.charge-shadow {
+.state-charging #shadow {
   animation: charge-shadow-kf 0.6s ease-in-out 4;
   transform-origin: 7.5px 15.5px;
 }
@@ -594,11 +654,11 @@ html, body {
   85% { transform: scale(1.1); opacity: 0.45; }
 }
 
-.charge-arm-l {
+.state-charging .arm-raised-l {
   transform-origin: 1px 7px;
   animation: charge-pump-l 0.6s ease-in-out 4;
 }
-.charge-arm-r {
+.state-charging .arm-raised-r {
   transform-origin: 14px 7px;
   animation: charge-pump-r 0.6s ease-in-out 4;
 }
@@ -612,7 +672,9 @@ html, body {
   35%, 65% { transform: rotate(-25deg) translateY(-3px); }
 }
 
-.charge-bolt {
+.state-charging #charge-effects { opacity: 1; }
+
+.state-charging .charge-bolt {
   animation: bolt-flash 0.4s ease-in-out 6;
   transform-origin: 7.5px 3px;
 }
@@ -622,7 +684,7 @@ html, body {
   50% { opacity: 0.4; transform: scale(1.15); }
 }
 
-.charge-spark {
+.state-charging .charge-spark {
   opacity: 0;
   animation: spark-pop 0.5s ease-out 5;
   animation-delay: var(--d, 0s);
@@ -850,15 +912,7 @@ html, body {
 .coffee-return .type-arm-l { opacity: 1; transition: opacity 0.2s ease; }
 .coffee-return #typing-happy-eyes { opacity: 0 !important; transition: opacity 0.2s ease; }
 
-/* ---------- STATE: HAPPY ---------- */
-
-.state-happy .pose-happy { display: block; }
-
-.bounce-anim {
-  transform-origin: 7.5px 15px;
-  animation: bounce 0.7s 3 ease-in-out;
-  animation-fill-mode: forwards;
-}
+/* ---------- HAPPY KEYFRAMES (used by puppet rig rules above) ---------- */
 
 @keyframes bounce {
   0%, 15%, 100% { transform: translateY(0) scaleY(1); }
@@ -870,11 +924,6 @@ html, body {
   85% { transform: translateY(0) scaleY(1); }
 }
 
-.shadow-bounce {
-  transform-origin: 7.5px 15.5px;
-  animation: shadow-bounce-kf 0.7s 3 ease-in-out;
-  animation-fill-mode: forwards;
-}
 @keyframes shadow-bounce-kf {
   0%, 15%, 100% { transform: scale(1); opacity: 0.4; }
   20% { transform: scale(1.1); opacity: 0.5; }
@@ -882,14 +931,6 @@ html, body {
   80% { transform: scale(1.1); opacity: 0.5; }
 }
 
-.wave-l {
-  transform-origin: 2px 10px;
-  animation: wave-l 0.15s 14 alternate ease-in-out;
-}
-.wave-r {
-  transform-origin: 13px 10px;
-  animation: wave-r 0.15s 14 alternate ease-in-out;
-}
 @keyframes wave-l {
   0% { transform: rotate(45deg); }
   100% { transform: rotate(85deg); }
@@ -899,21 +940,14 @@ html, body {
   100% { transform: rotate(-85deg); }
 }
 
-/* Settling: hold happy face briefly, no motion */
-.state-happy.settling .bounce-anim { animation: none; }
-.state-happy.settling .shadow-bounce { animation: none; }
-.state-happy.settling .wave-l,
-.state-happy.settling .wave-r { animation: none; transform: rotate(0deg); }
-.state-happy.settling .sparkles { opacity: 0; transition: opacity 0.3s ease; }
+/* Sparkles (animation only when happy — prevents firing at page load) */
+.spark-center, .spark-outer { opacity: 0; }
 
-/* Sparkles */
-.spark-center {
-  opacity: 0;
+.state-happy .spark-center {
   animation: flash-center 0.7s 3 step-end;
   animation-delay: var(--delay, 0s);
 }
-.spark-outer {
-  opacity: 0;
+.state-happy .spark-outer {
   animation: flash-outer 0.7s 3 step-end;
   animation-delay: var(--delay, 0s);
 }

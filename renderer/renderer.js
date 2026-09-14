@@ -169,25 +169,21 @@
   function triggerHappy() {
     if (happyTimer) clearTimeout(happyTimer);
     clawd.className = 'interactive state-happy';
+    if (spotifyPlaying) clawd.classList.add('vibing');
 
-    const bounceEl = document.querySelector('#happy-svg .bounce-anim');
-    if (!bounceEl) {
-      happyTimer = setTimeout(() => { happyTimer = null; applyStateClasses(); }, 2200);
-      return;
-    }
-
-    const onEnd = () => {
-      bounceEl.removeEventListener('animationend', onEnd);
+    const onEnd = (e) => {
+      if (e.animationName !== 'bounce') return;
+      masterGroup.removeEventListener('animationend', onEnd);
       clawd.classList.add('settling');
       happyTimer = setTimeout(() => {
         happyTimer = null;
         applyStateClasses();
       }, 500);
     };
-    bounceEl.addEventListener('animationend', onEnd);
+    masterGroup.addEventListener('animationend', onEnd);
 
     happyTimer = setTimeout(() => {
-      bounceEl.removeEventListener('animationend', onEnd);
+      masterGroup.removeEventListener('animationend', onEnd);
       happyTimer = null;
       applyStateClasses();
     }, 4000);
