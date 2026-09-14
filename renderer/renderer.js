@@ -1,4 +1,11 @@
 (() => {
+  // --- Tauri IPC bridge ---
+  const { invoke } = window.__TAURI__.core;
+  const { listen } = window.__TAURI__.event;
+  const { getCurrentWebviewWindow } = window.__TAURI__.webviewWindow;
+
+  const appWindow = getCurrentWebviewWindow();
+
   const clawd = document.getElementById('clawd');
   const eyesGroup = document.getElementById('eyes');
   const masterGroup = document.getElementById('master-group');
@@ -10,7 +17,7 @@
   const coffeeStation = document.getElementById('coffee-station');
 
   let winBounds = { x: 0, y: 0, width: 220, height: 260 };
-  window.clawd.getWindowBounds().then((b) => { winBounds = b; });
+  invoke('get_window_bounds').then((b) => { winBounds = b; });
 
   // ---------------- eye tracking (awake only) ----------------
 
@@ -39,7 +46,8 @@
     eyesGroup.style.transform = `translate(${ox.toFixed(2)}px, ${oy.toFixed(2)}px)`;
   }
 
-  window.clawd.onCursor((point) => {
+  listen('cursor-pos', (event) => {
+    const point = event.payload;
     lastCursorPoint = point;
     if (currentMode === 'awake' && idlePhase === 'rest') {
       updateEyes(point);
@@ -53,7 +61,6 @@
   let dragStartY = 0;
 
   clawd.addEventListener('mousedown', (e) => {
-    // Right-click or panel interactions should not drag
     if (e.button !== 0) return;
     if (e.target.closest('#stats-toggle') || e.target.closest('#panel')) return;
 
@@ -61,8 +68,7 @@
     dragStartX = e.screenX;
     dragStartY = e.screenY;
 
-    // Tell main process our click offset within the window
-    window.clawd.startDrag(e.screenX - winBounds.x, e.screenY - winBounds.y);
+    invoke('drag_start', { offsetX: e.screenX - winBounds.x, offsetY: e.screenY - winBounds.y });
   });
 
   window.addEventListener('mousemove', (e) => {
@@ -72,9 +78,8 @@
     if (moved > 4) {
       dragging = true;
       clawd.classList.add('dragging');
-      window.clawd.dragMove(e.screenX, e.screenY);
-      // Update bounds cache since we moved
-      window.clawd.getWindowBounds().then((b) => { winBounds = b; });
+      invoke('drag_move', { screenX: e.screenX, screenY: e.screenY });
+      invoke('get_window_bounds').then((b) => { winBounds = b; });
     }
   });
 
@@ -82,11 +87,10 @@
     if (dragging) {
       dragging = false;
       clawd.classList.remove('dragging');
-      window.clawd.getWindowBounds().then((b) => { winBounds = b; });
+      invoke('get_window_bounds').then((b) => { winBounds = b; });
     } else if (dragStartX !== 0) {
-      // It was a click, not a drag
       if (!desktopRunning) {
-        window.clawd.openClaude();
+        invoke('open_claude');
       }
       triggerHappy();
     }
@@ -211,7 +215,8 @@
     }
   }
 
-  window.clawd.onState((state) => {
+  listen('system-state', (event) => {
+    const state = event.payload;
     totalInstances = state.totalInstances || 1;
     const newMode = state.mode;
     const wasVibing = spotifyPlaying;
@@ -248,8 +253,6 @@
   });
 
   // ---------------- idle cycle (awake only) ----------------
-  // Cycles: rest → look-right → rest → look-left → rest → scratch → rest
-  // Each phase lasts a few seconds, giving Claw'd personality.
 
   const IDLE_PHASES = ['rest', 'look-right', 'rest', 'look-left', 'rest', 'scratch', 'rest', 'thuglife', 'rest'];
   const IDLE_DURATIONS = [4000, 2000, 3000, 2000, 5000, 1800, 3000, 5000, 2000];
@@ -261,19 +264,16 @@
     if (currentMode !== 'awake' || happyTimer) return;
     thugLifeActive = true;
 
-    // Rotate shades on from the right
     idlePhase = 'thug-on';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 500));
     if (currentMode !== 'awake') { thugLifeActive = false; return; }
 
-    // Hold pose — deal with it
     idlePhase = 'thug-pose';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 2500));
     if (currentMode !== 'awake') { thugLifeActive = false; return; }
 
-    // Rotate shades off to the left
     idlePhase = 'thug-off';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 500));
@@ -304,7 +304,6 @@
     setTimeout(advanceIdle, IDLE_DURATIONS[idleIndex]);
   }
 
-  // Start the idle loop after a brief delay
   setTimeout(advanceIdle, IDLE_DURATIONS[0]);
 
   // ---------------- coffee break cycle ----------------
@@ -318,7 +317,6 @@
       if (currentMode !== 'action' || coffeeAnimating || stretchAnimating || happyTimer) return;
       doCoffeeBreak();
     }, 18000);
-    // First coffee after 8 seconds
     setTimeout(() => {
       if (currentMode === 'action' && !coffeeAnimating && !stretchAnimating && !happyTimer) {
         doCoffeeBreak();
@@ -352,22 +350,11 @@
 
   async function doCoffeeBreak() {
     coffeeAnimating = true;
-
-    // 1. Pour: machine fills the mug (2.5s)
     if (!await coffeePhase('coffee-pour', 2500)) { clearCoffeeClasses(); coffeeAnimating = false; return; }
-
-    // 2. Grab: Claw'd turns toward machine, arm reaches out (1s)
     if (!await coffeePhase('coffee-grab', 1000)) { clearCoffeeClasses(); coffeeAnimating = false; return; }
-
-    // 3. Drink: arm brings mug to face, turns back (1.2s)
     if (!await coffeePhase('coffee-drink', 1200)) { clearCoffeeClasses(); coffeeAnimating = false; return; }
-
-    // 4. Sip: mug tilts up, ^_^ eyes (1.5s)
     if (!await coffeePhase('coffee-sip', 1500)) { clearCoffeeClasses(); coffeeAnimating = false; return; }
-
-    // 5. Return: put mug back, turn to laptop (0.8s)
     if (!await coffeePhase('coffee-return', 800)) { clearCoffeeClasses(); coffeeAnimating = false; return; }
-
     clearCoffeeClasses();
     coffeeAnimating = false;
   }
@@ -378,7 +365,7 @@
   let stretchAnimating = false;
   let typingStartTime = 0;
 
-  const STRETCH_AFTER = 25 * 60 * 1000; // 25 minutes
+  const STRETCH_AFTER = 25 * 60 * 1000;
   const STRETCH_PHASES = ['stretch-lean', 'stretch-up', 'stretch-hold', 'stretch-yawn', 'stretch-return'];
 
   function clearStretchClasses() {
@@ -417,22 +404,11 @@
 
   async function doStretch() {
     stretchAnimating = true;
-
-    // 1. Lean back from laptop
     if (!await stretchPhase('stretch-lean', 800)) { clearStretchClasses(); stretchAnimating = false; return; }
-
-    // 2. Arms stretch up
     if (!await stretchPhase('stretch-up', 600)) { clearStretchClasses(); stretchAnimating = false; return; }
-
-    // 3. Hold stretch with eyes closed
     if (!await stretchPhase('stretch-hold', 2000)) { clearStretchClasses(); stretchAnimating = false; return; }
-
-    // 4. Yawn — mouth opens, eyes squint
     if (!await stretchPhase('stretch-yawn', 1500)) { clearStretchClasses(); stretchAnimating = false; return; }
-
-    // 5. Settle back to typing
     if (!await stretchPhase('stretch-return', 600)) { clearStretchClasses(); stretchAnimating = false; return; }
-
     clearStretchClasses();
     stretchAnimating = false;
   }
@@ -447,7 +423,7 @@
   function maybeStartWalk() {
     if (isWalking || currentMode !== 'awake' || happyTimer || spotifyPlaying || copyActive || pasteActive || chargingActive) return;
     idleSinceAction++;
-    if (idleSinceAction < 8) return; // ~8 idle cycles before first walk (~72s)
+    if (idleSinceAction < 8) return;
     if (Math.random() > 0.3) return;
 
     doWalk();
@@ -455,8 +431,8 @@
 
   async function doWalk() {
     isWalking = true;
-    const screenBounds = await window.clawd.getScreenBounds();
-    const bounds = await window.clawd.getWindowBounds();
+    const screenBounds = await invoke('get_screen_bounds');
+    const bounds = await invoke('get_window_bounds');
     const startX = bounds.x;
     const startY = bounds.y;
 
@@ -480,9 +456,8 @@
         return;
       }
       if (step >= totalSteps) {
-        window.clawd.walkTo(targetX, targetY);
+        invoke('walk_to', { x: targetX, y: targetY });
         winBounds.x = targetX;
-        // Keep walk pose briefly while IPC catches up
         setTimeout(() => {
           isWalking = false;
           walkAnimFrame = null;
@@ -493,7 +468,7 @@
       step++;
       const progress = step / totalSteps;
       const x = startX + (targetX - startX) * progress;
-      window.clawd.walkTo(Math.round(x), targetY);
+      invoke('walk_to', { x: Math.round(x), y: targetY });
       winBounds.x = x;
       walkAnimFrame = requestAnimationFrame(walkStep);
     }
@@ -501,23 +476,18 @@
     walkAnimFrame = requestAnimationFrame(walkStep);
   }
 
-  // Check for walk opportunity each idle cycle
-  const origAdvanceIdle = advanceIdle;
   setInterval(() => {
     if (currentMode === 'awake' && !happyTimer && !isWalking) {
       maybeStartWalk();
     }
   }, 9000);
 
-  // Reset idle counter when entering action
-  const origApply = applyStateClasses;
-
   // ---------------- edge peek ----------------
 
   async function checkEdgePeek() {
     if (currentMode !== 'awake' || happyTimer || isWalking) return;
-    const bounds = await window.clawd.getWindowBounds();
-    const screenBounds = await window.clawd.getScreenBounds();
+    const bounds = await invoke('get_window_bounds');
+    const screenBounds = await invoke('get_screen_bounds');
 
     const atRight = bounds.x + bounds.width >= screenBounds.width - 5;
     const atLeft = bounds.x <= 5;
@@ -542,31 +512,26 @@
     if (currentMode !== 'awake' || happyTimer || isWalking || ignoredActive) return;
     ignoredActive = true;
 
-    // Raise arm with remote
     idlePhase = 'ignored-click';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 500));
     if (currentMode !== 'awake') { ignoredActive = false; return; }
 
-    // Press button
     idlePhase = 'ignored-press';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 300));
     if (currentMode !== 'awake') { ignoredActive = false; return; }
 
-    // Banner drops
     idlePhase = 'ignored-drop';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 1400));
     if (currentMode !== 'awake') { ignoredActive = false; return; }
 
-    // Hold with sway
     idlePhase = 'ignored-hold';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 4000));
     if (currentMode !== 'awake') { ignoredActive = false; return; }
 
-    // Banner floats away
     idlePhase = 'ignored-away';
     applyStateClasses();
     await new Promise(r => setTimeout(r, 900));
@@ -641,8 +606,8 @@
     applyStateClasses();
   }
 
-  window.clawd.onClipboardCopy(() => { doCopyReaction(); });
-  window.clawd.onClipboardPaste(() => { doPasteReaction(); });
+  listen('clipboard-copy', () => { doCopyReaction(); });
+  listen('clipboard-paste', () => { doPasteReaction(); });
 
   // ---------------- screenshot detection ----------------
 
@@ -661,7 +626,7 @@
     applyStateClasses();
   }
 
-  window.clawd.onScreenshot(() => { doScreenshotReaction(); });
+  listen('screenshot-taken', () => { doScreenshotReaction(); });
 
   // ---------------- charging celebration ----------------
 
@@ -687,7 +652,8 @@
     return String(n);
   }
 
-  window.clawd.onTokenStats((stats) => {
+  listen('token-stats', (event) => {
+    const stats = event.payload;
     document.getElementById('stat-today').textContent = formatTokens(stats.today);
     document.getElementById('stat-week').textContent = formatTokens(stats.week);
     document.getElementById('stat-all').textContent = formatTokens(stats.allTime);
@@ -701,25 +667,7 @@
 
   closeBtn.addEventListener('mousedown', (e) => {
     e.stopPropagation();
-    window.close();
+    appWindow.close();
   });
 
-  // ---------------- click-through hit testing ----------------
-
-  let ignoring = true;
-  window.addEventListener('mousemove', (e) => {
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const interactive = !!(el && el.closest('.interactive'));
-    if (interactive === ignoring) {
-      ignoring = !interactive;
-      window.clawd.setIgnoreMouseEvents(ignoring, { forward: true });
-    }
-  });
-
-  window.addEventListener('mouseleave', () => {
-    if (!ignoring) {
-      ignoring = true;
-      window.clawd.setIgnoreMouseEvents(true, { forward: true });
-    }
-  });
 })();
