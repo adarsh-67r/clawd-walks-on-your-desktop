@@ -11,6 +11,7 @@
     "watch": "tsc --watch"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
     "@types/node": "^26.5.1",
     "electron": "^44.3.0",
     "typescript": "^7.0.2"
