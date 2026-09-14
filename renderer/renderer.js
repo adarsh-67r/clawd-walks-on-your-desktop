@@ -87,8 +87,10 @@
     if (dragging) {
       dragging = false;
       clawd.classList.remove('dragging');
+      invoke('drag_end');
       invoke('get_window_bounds').then((b) => { winBounds = b; });
     } else if (dragStartX !== 0) {
+      invoke('drag_end');
       if (!desktopRunning) {
         invoke('open_claude');
       }
@@ -142,7 +144,7 @@
   }
 
   function applyStateClasses() {
-    if (happyTimer || chargingActive || screenshotActive) return;
+    if (happyTimer || chargingActive || screenshotActive || isWalking) return;
     clawd.className = 'interactive state-' + currentMode;
     if (currentMode === 'awake') {
       if (spotifyPlaying) {
@@ -234,7 +236,7 @@
     if (newMode !== currentMode && newMode !== 'asleep') {
       cancelDrowsy();
       if (newMode === 'action') idleSinceAction = 0;
-      if (isWalking && walkAnimFrame) { cancelAnimationFrame(walkAnimFrame); isWalking = false; }
+      if (isWalking && walkAnimFrame) { clearTimeout(walkAnimFrame); isWalking = false; }
       currentMode = newMode;
       applyStateClasses();
     } else if (newMode === 'asleep' && currentMode !== 'asleep' && currentMode !== 'drowsy') {
@@ -284,7 +286,7 @@
   }
 
   function advanceIdle() {
-    if (currentMode !== 'awake' || happyTimer || ignoredActive || copyActive || pasteActive || chargingActive) {
+    if (currentMode !== 'awake' || happyTimer || ignoredActive || copyActive || pasteActive || chargingActive || isWalking) {
       if (!ignoredActive) { idleIndex = 0; idlePhase = 'rest'; }
       setTimeout(advanceIdle, 2000);
       return;
@@ -440,7 +442,7 @@
     const distance = 150 + Math.random() * 300;
     let targetX = goRight ? startX + distance : startX - distance;
     targetX = Math.max(0, Math.min(targetX, screenBounds.width - bounds.width));
-    const targetY = screenBounds.height - bounds.height - 24;
+    const targetY = startY;
 
     clawd.className = 'interactive state-walk' + (goRight ? '' : ' walk-left');
     if (isLateNight()) clawd.classList.add('late-night');
@@ -470,10 +472,10 @@
       const x = startX + (targetX - startX) * progress;
       invoke('walk_to', { x: Math.round(x), y: targetY });
       winBounds.x = x;
-      walkAnimFrame = requestAnimationFrame(walkStep);
+      walkAnimFrame = setTimeout(walkStep, 16);
     }
 
-    walkAnimFrame = requestAnimationFrame(walkStep);
+    walkAnimFrame = setTimeout(walkStep, 16);
   }
 
   setInterval(() => {

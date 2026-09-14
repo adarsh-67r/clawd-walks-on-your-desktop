@@ -9,8 +9,11 @@ use sensors::system_state::poll_system_state;
 use sensors::token_stats::get_token_summary;
 
 use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use tauri::{Emitter, Manager, PhysicalPosition, WebviewWindow};
+
+static IS_DRAGGING: AtomicBool = AtomicBool::new(false);
 
 // --- Config loading ---
 
@@ -95,6 +98,13 @@ fn get_screen_bounds(window: WebviewWindow) -> serde_json::Value {
 #[tauri::command]
 fn drag_start(state: tauri::State<AppState>, offset_x: f64, offset_y: f64) {
     *state.drag_offset.lock().unwrap() = Some((offset_x, offset_y));
+    IS_DRAGGING.store(true, Ordering::Relaxed);
+}
+
+#[tauri::command]
+fn drag_end(state: tauri::State<AppState>) {
+    *state.drag_offset.lock().unwrap() = None;
+    IS_DRAGGING.store(false, Ordering::Relaxed);
 }
 
 #[tauri::command]
@@ -153,6 +163,7 @@ fn main() {
             get_window_bounds,
             get_screen_bounds,
             drag_start,
+            drag_end,
             drag_move,
             walk_to,
             open_claude,
@@ -186,16 +197,18 @@ fn main() {
                     let pos = get_cursor_position();
                     let _ = handle.emit("cursor-pos", &pos);
 
-                    if let (Ok(wp), Ok(ws)) =
-                        (cursor_window.outer_position(), cursor_window.outer_size())
-                    {
-                        let inside = pos.x >= wp.x
-                            && pos.x < wp.x + ws.width as i32
-                            && pos.y >= wp.y
-                            && pos.y < wp.y + ws.height as i32;
-                        if inside != cursor_over {
-                            cursor_over = inside;
-                            let _ = cursor_window.set_ignore_cursor_events(!inside);
+                    if !IS_DRAGGING.load(Ordering::Relaxed) {
+                        if let (Ok(wp), Ok(ws)) =
+                            (cursor_window.outer_position(), cursor_window.outer_size())
+                        {
+                            let inside = pos.x >= wp.x
+                                && pos.x < wp.x + ws.width as i32
+                                && pos.y >= wp.y
+                                && pos.y < wp.y + ws.height as i32;
+                            if inside != cursor_over {
+                                cursor_over = inside;
+                                let _ = cursor_window.set_ignore_cursor_events(!inside);
+                            }
                         }
                     }
 
